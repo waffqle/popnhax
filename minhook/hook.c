@@ -495,7 +495,7 @@ MH_STATUS WINAPI MH_Initialize(VOID)
 //-------------------------------------------------------------------------
 MH_STATUS WINAPI MH_Uninitialize(VOID)
 {
-    MH_STATUS status = MH_OK;
+    MH_STATUS status;
 
     EnterSpinLock();
 
@@ -675,7 +675,7 @@ MH_STATUS WINAPI MH_RemoveHook(LPVOID pTarget)
 //-------------------------------------------------------------------------
 static MH_STATUS EnableHook(LPVOID pTarget, BOOL enable)
 {
-    MH_STATUS status = MH_OK;
+    MH_STATUS status;
 
     EnterSpinLock();
 

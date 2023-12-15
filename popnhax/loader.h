@@ -1,7 +1,7 @@
 #ifndef __LOADER_H__
 #define __LOADER_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 int8_t get_chart_type_override(uint8_t *, uint32_t, uint32_t);
 

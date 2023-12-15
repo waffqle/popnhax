@@ -1,6 +1,6 @@
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
+
+#include <cstdint>
+#include <cstdlib>
 
 #include <windows.h>
 
@@ -9,8 +9,8 @@ void *xmalloc(size_t nbytes) {
 
     mem = malloc(nbytes);
 
-    if (mem == NULL) {
-        return NULL;
+    if (mem == nullptr) {
+        return nullptr;
     }
 
     return mem;
@@ -21,8 +21,8 @@ void *xrealloc(void *mem, size_t nbytes) {
 
     newmem = realloc(mem, nbytes);
 
-    if (newmem == NULL) {
-        return NULL;
+    if (newmem == nullptr) {
+        return nullptr;
     }
 
     return newmem;
@@ -51,7 +51,7 @@ void args_recover(int *argc_out, char ***argv_out) {
     bool quote;
 
     argc = 0;
-    argv = NULL;
+    argv = nullptr;
     quote = false;
 
     for (begin = pos = GetCommandLine(); *pos; pos++) {
@@ -64,21 +64,21 @@ void args_recover(int *argc_out, char ***argv_out) {
                 push_argv(&argc, &argv, begin, pos);
 
                 quote = false;
-                begin = NULL;
+                begin = nullptr;
             }
 
             break;
 
         case ' ':
-            if (!quote && begin != NULL) {
+            if (!quote && begin != nullptr) {
                 push_argv(&argc, &argv, begin, pos);
-                begin = NULL;
+                begin = nullptr;
             }
 
             break;
 
         default:
-            if (begin == NULL) {
+            if (begin == nullptr) {
                 begin = pos;
             }
 
@@ -86,7 +86,7 @@ void args_recover(int *argc_out, char ***argv_out) {
         }
     }
 
-    if (begin != NULL && !quote) {
+    if (begin != nullptr && !quote) {
         push_argv(&argc, &argv, begin, pos);
     }
 

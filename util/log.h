@@ -2,9 +2,9 @@
 #define __LOG_H__
 
 #include <cstdio>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+
+#include <cstddef>
+#include <cstdint>
 
 extern FILE *g_log_fp;
 

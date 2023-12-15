@@ -3,7 +3,7 @@
 #include <psapi.h>
 // clang-format on
 
-#include "util/search.h"
+#include "../util/search.h"
 #include "patch.h"
 
 void patch_memory(uint64_t patch_addr, char *data, size_t len) {
@@ -20,7 +20,7 @@ char *getDllData(const char *dllFilename, DWORD *dllSize) {
     memset(&module_info, 0, sizeof(module_info));
     if (!GetModuleInformation(GetCurrentProcess(), _moduleBase, &module_info,
                               sizeof(module_info))) {
-        return NULL;
+        return nullptr;
     }
 
     *dllSize = module_info.SizeOfImage;
@@ -30,9 +30,9 @@ char *getDllData(const char *dllFilename, DWORD *dllSize) {
 
 bool rva_to_offset(const char *dllFilename, uint32_t rva, uint32_t *offset)
 {
-  uintptr_t baseAddr = (uintptr_t)GetModuleHandle(dllFilename);
-  IMAGE_DOS_HEADER * pDosHdr = (IMAGE_DOS_HEADER *) baseAddr;
-  IMAGE_NT_HEADERS * pNtHdr = (IMAGE_NT_HEADERS *) (baseAddr + pDosHdr->e_lfanew);
+  auto baseAddr = (uintptr_t)GetModuleHandle(dllFilename);
+  auto * pDosHdr = (IMAGE_DOS_HEADER *) baseAddr;
+  auto * pNtHdr = (IMAGE_NT_HEADERS *) (baseAddr + pDosHdr->e_lfanew);
 	
   int i;
   WORD wSections;
@@ -56,9 +56,9 @@ bool rva_to_offset(const char *dllFilename, uint32_t rva, uint32_t *offset)
 
 bool offset_to_rva(const char *dllFilename, uint32_t offset, uint32_t *rva)
 {
-  uintptr_t baseAddr = (uintptr_t)GetModuleHandle(dllFilename);
-  IMAGE_DOS_HEADER * pDosHdr = (IMAGE_DOS_HEADER *) baseAddr;
-  IMAGE_NT_HEADERS * pNtHdr = (IMAGE_NT_HEADERS *) (baseAddr + pDosHdr->e_lfanew);
+  auto baseAddr = (uintptr_t)GetModuleHandle(dllFilename);
+  auto * pDosHdr = (IMAGE_DOS_HEADER *) baseAddr;
+  auto * pNtHdr = (IMAGE_NT_HEADERS *) (baseAddr + pDosHdr->e_lfanew);
 	
   int i;
   WORD wSections;
@@ -87,7 +87,7 @@ void find_and_patch_string(const char *dllFilename, const char *input_string, co
     DWORD dllSize = 0;
     char *data = getDllData(dllFilename, &dllSize);
 
-    while (1) {
+    while (true) {
         int64_t pattern_offset = search(data, dllSize, input_string, strlen(input_string), 0);
         if (pattern_offset == -1) {
             break;

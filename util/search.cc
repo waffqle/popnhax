@@ -1,8 +1,8 @@
 #include <memory.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cstdio>
 
-#include "util/log.h"
+#include "../util/log.h"
 
 #define NO_OF_CHARS 256
 

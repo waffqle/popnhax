@@ -28,3 +28,4 @@ $(BUILDDIR)/popnhax.zip: \
 	zip -j $@ $^
 
 all: $(BUILDDIR)/popnhax.zip
+

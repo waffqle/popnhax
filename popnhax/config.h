@@ -1,7 +1,7 @@
 #ifndef __POPNHAX_CONFIG__
 #define __POPNHAX_CONFIG__
 
-#include <stdbool.h>
+
 
 struct popnhax_config {
     bool practice_mode;

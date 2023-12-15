@@ -1,7 +1,7 @@
 #ifndef __TABLEINFO_H__
 #define __TABLEINFO_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 typedef struct {
     uint8_t *folder_ptr;

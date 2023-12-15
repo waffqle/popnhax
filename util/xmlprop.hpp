@@ -1,9 +1,9 @@
 #ifndef __XML_H__
 #define __XML_H__
 
-#include <stdio.h>
+#include <cstdio>
 
-#include "imports/avs.h"
+#include "../imports/avs.h"
 
 struct property_psmap {
     uint8_t type;
@@ -63,15 +63,15 @@ struct property *load_prop_file(const char *filename) {
         return nullptr;
     }
 
-    const size_t size = property_read_query_memsize(reader_callback, tlsIndex, NULL, NULL);
+    const size_t size = property_read_query_memsize(reader_callback, tlsIndex, nullptr, nullptr);
     rewind(file);
 
-    struct property_node *buffer =
+    auto *buffer =
         (struct property_node *)calloc(size + 0x10000, sizeof(unsigned char));
     struct property *config_data = property_create(0x17, buffer, size + 0x10000);
 
     if (size > 0) {
-        const int ret = property_insert_read(config_data, 0, reader_callback, tlsIndex);
+        const int ret = property_insert_read(config_data, nullptr, reader_callback, tlsIndex);
 
         if (ret) {
             fclose(file);

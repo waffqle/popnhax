@@ -3,8 +3,8 @@
 #include <io.h>
 #include <windows.h>
 
-#include "imports/avs.h"
-#include "util/patch.h"
+#include "../imports/avs.h"
+#include "../util/patch.h"
 #include "xmlhelper.h"
 
 #include "tableinfo.h"
@@ -77,35 +77,35 @@ uint8_t *filler_str = add_string((uint8_t *)"\x81\x5d\x00");
 const uint32_t string_table_growth_size = 0x100000;
 uint32_t string_table_size = 0;
 uint32_t string_table_idx = 0;
-uint8_t *string_table = NULL;
+uint8_t *string_table = nullptr;
 
 const uint32_t fontstyle_table_growth_size = 50;
 uint32_t fontstyle_table_size = 0;
 int32_t fontmax_style_id = -1;
-uint8_t *fontstyle_table = NULL;
+uint8_t *fontstyle_table = nullptr;
 
 const uint32_t flavor_table_growth_size = 50;
 uint32_t flavor_table_size = 0;
 int32_t max_flavor_id = -1;
-uint8_t *flavor_table = NULL;
+uint8_t *flavor_table = nullptr;
 
 std::map<uint32_t, bool> used_chara_id;
 const uint32_t chara_table_growth_size = 50;
 uint32_t chara_table_size = 0;
 int32_t max_chara_id = -1;
-uint8_t *chara_table = NULL;
+uint8_t *chara_table = nullptr;
 static uint8_t chara_table_nullptr[1] = {};
 
 std::map<uint32_t, bool> used_music_id;
 const uint32_t music_table_growth_size = 50;
 uint32_t music_table_size = 0;
 int32_t max_music_id = -1;
-uint8_t *music_table = NULL;
+uint8_t *music_table = nullptr;
 
 const uint32_t chart_table_growth_size = 50;
 uint32_t chart_table_size = 0;
 int32_t max_chart_id = -1;
-uint8_t *chart_table = NULL;
+uint8_t *chart_table = nullptr;
 
 bool file_exists(const char *filename) {
     FILE *test = fopen(filename, "rb");
@@ -138,22 +138,22 @@ uint8_t *add_string(uint8_t *input) {
     // The code doesn't really benefit from compressing the duplicate strings
     // in the string table and it only slows it down greatly.
     // The full chara and music database uses less than 1mb total so it's not an issue.
-    if (input == NULL) {
-        return NULL;
+    if (input == nullptr) {
+        return nullptr;
     }
 
     uint32_t len = strlen((char *)input);
 
     if (len == 0) {
-        return NULL;
+        return nullptr;
     }
 
-    if (string_table == NULL || string_table_idx + len + 1 >= string_table_size) {
+    if (string_table == nullptr || string_table_idx + len + 1 >= string_table_size) {
         // Realloc array to hold more strings
         uint32_t new_string_table_size = string_table_idx + len + 1 + string_table_growth_size;
-        uint8_t *string_table_new = (uint8_t *)realloc(string_table, new_string_table_size + 1);
+        auto *string_table_new = (uint8_t *)realloc(string_table, new_string_table_size + 1);
 
-        if (string_table_new == NULL) {
+        if (string_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    string_table_size, string_table_size + string_table_growth_size);
             exit(1);
@@ -177,7 +177,7 @@ uint8_t *add_string(uint8_t *input) {
 void add_chart_type_flag(uint32_t cur_idx, int8_t flag) { chart_type_overrides[cur_idx] = flag; }
 
 int8_t get_chart_type_override(uint8_t *buffer, uint32_t music_idx, uint32_t chart_idx) {
-    music_entry *m = (music_entry *)buffer;
+    auto *m = (music_entry *)buffer;
     uint32_t idx = m[music_idx].charts[chart_idx];
 
     if (chart_type_overrides.find(idx) == chart_type_overrides.end()) {
@@ -236,7 +236,7 @@ uint16_t get_chara_idx(const uint8_t *chara_id) {
     for (int32_t i = 0; i <= max_chara_id; i++) {
         character_entry *cur = (character_entry *)chara_table + i;
 
-        if (chara_id != NULL && cur->chara_id_ptr != NULL &&
+        if (chara_id != nullptr && cur->chara_id_ptr != nullptr &&
             strlen((char *)cur->chara_id_ptr) == strlen((char *)chara_id) &&
             strcmp((char *)cur->chara_id_ptr, (char *)chara_id) == 0) {
             return i;
@@ -272,12 +272,12 @@ uint32_t chart_label_to_idx(uint8_t *chart_label) {
 
 fontstyle_entry *get_fontstyle(int32_t cur_idx) {
     if (cur_idx < 11) {
-        return NULL;
+        return nullptr;
     }
 
     cur_idx -= 11;
     if (cur_idx > fontmax_style_id) {
-        return NULL;
+        return nullptr;
     }
 
     return (fontstyle_entry *)fontstyle_table + cur_idx;
@@ -285,7 +285,7 @@ fontstyle_entry *get_fontstyle(int32_t cur_idx) {
 
 character_entry *get_chara(int32_t cur_idx) {
     if (used_chara_id.find(cur_idx) == used_chara_id.end()) {
-        return NULL;
+        return nullptr;
     }
 
     return (character_entry *)chara_table + cur_idx;
@@ -293,7 +293,7 @@ character_entry *get_chara(int32_t cur_idx) {
 
 music_entry *get_music(int32_t cur_idx) {
     if (used_music_id.find(cur_idx) == used_music_id.end()) {
-        return NULL;
+        return nullptr;
     }
 
     return (music_entry *)music_table + cur_idx;
@@ -301,7 +301,7 @@ music_entry *get_music(int32_t cur_idx) {
 
 chart_entry *get_chart(int32_t cur_idx) {
     if (cur_idx > max_chart_id) {
-        return NULL;
+        return nullptr;
     }
 
     return (chart_entry *)chart_table + cur_idx;
@@ -309,13 +309,13 @@ chart_entry *get_chart(int32_t cur_idx) {
 
 uint32_t add_style(int32_t cur_idx, uint32_t fontface, uint32_t color, uint32_t height,
                    uint32_t width) {
-    if (fontstyle_table == NULL || cur_idx + 1 >= (int)fontstyle_table_size) {
+    if (fontstyle_table == nullptr || cur_idx + 1 >= (int)fontstyle_table_size) {
         // Realloc array to hold more styles
         uint32_t new_style_table_size = cur_idx + 1 + fontstyle_table_growth_size;
-        uint8_t *style_table_new = (uint8_t *)realloc(fontstyle_table, (new_style_table_size + 1) *
+        auto *style_table_new = (uint8_t *)realloc(fontstyle_table, (new_style_table_size + 1) *
                                                                            sizeof(fontstyle_entry));
 
-        if (style_table_new == NULL) {
+        if (style_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    fontstyle_table_size, fontstyle_table_size + fontstyle_table_growth_size);
             exit(1);
@@ -360,13 +360,13 @@ uint32_t add_flavor(int32_t cur_idx, uint8_t *phrase1, uint8_t *phrase2, uint8_t
                     uint8_t chara2_birth_date, uint8_t chara3_birth_date, uint16_t style1,
                     bool style2_flag, uint16_t style3, uint32_t fontstyle_fontface,
                     uint32_t fontstyle_color, uint32_t fontstyle_height, uint32_t fontstyle_width) {
-    if (flavor_table == NULL || cur_idx + 1 >= (int)flavor_table_size) {
+    if (flavor_table == nullptr || cur_idx + 1 >= (int)flavor_table_size) {
         // Realloc array to hold more flavors
         uint32_t new_flavor_table_size = cur_idx + 1 + flavor_table_growth_size;
-        uint8_t *flavor_table_new =
+        auto *flavor_table_new =
             (uint8_t *)realloc(flavor_table, (new_flavor_table_size + 1) * sizeof(flavor_entry));
 
-        if (flavor_table_new == NULL) {
+        if (flavor_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    flavor_table_size, flavor_table_size + flavor_table_growth_size);
             exit(1);
@@ -386,20 +386,20 @@ uint32_t add_flavor(int32_t cur_idx, uint8_t *phrase1, uint8_t *phrase2, uint8_t
 
         fontstyle_entry *fs = get_fontstyle(cur->style2);
 
-        if (phrase1 != NULL && cur->phrase1 != NULL &&
+        if (phrase1 != nullptr &&
             strlen((char *)cur->phrase1) == strlen((char *)phrase1) &&
-            strcmp((char *)cur->phrase1, (char *)phrase1) == 0 && phrase2 != NULL &&
-            cur->phrase2 != NULL && strlen((char *)cur->phrase2) == strlen((char *)phrase2) &&
-            strcmp((char *)cur->phrase2, (char *)phrase2) == 0 && phrase3 != NULL &&
-            cur->phrase3 != NULL && strlen((char *)cur->phrase3) == strlen((char *)phrase3) &&
-            strcmp((char *)cur->phrase3, (char *)phrase3) == 0 && phrase4 != NULL &&
-            cur->phrase4 != NULL && strlen((char *)cur->phrase4) == strlen((char *)phrase4) &&
-            strcmp((char *)cur->phrase4, (char *)phrase4) == 0 && phrase5 != NULL &&
-            cur->phrase5 != NULL && strlen((char *)cur->phrase5) == strlen((char *)phrase5) &&
-            strcmp((char *)cur->phrase5, (char *)phrase5) == 0 && phrase6 != NULL &&
-            cur->phrase6 != NULL && strlen((char *)cur->phrase6) == strlen((char *)phrase6) &&
-            strcmp((char *)cur->phrase6, (char *)phrase6) == 0 && birthday != NULL &&
-            cur->birthday_ptr != NULL &&
+            strcmp((char *)cur->phrase1, (char *)phrase1) == 0 && phrase2 != nullptr &&
+            strlen((char *)cur->phrase2) == strlen((char *)phrase2) &&
+            strcmp((char *)cur->phrase2, (char *)phrase2) == 0 && phrase3 != nullptr &&
+            strlen((char *)cur->phrase3) == strlen((char *)phrase3) &&
+            strcmp((char *)cur->phrase3, (char *)phrase3) == 0 && phrase4 != nullptr &&
+            strlen((char *)cur->phrase4) == strlen((char *)phrase4) &&
+            strcmp((char *)cur->phrase4, (char *)phrase4) == 0 && phrase5 != nullptr &&
+            strlen((char *)cur->phrase5) == strlen((char *)phrase5) &&
+            strcmp((char *)cur->phrase5, (char *)phrase5) == 0 && phrase6 != nullptr &&
+            strlen((char *)cur->phrase6) == strlen((char *)phrase6) &&
+            strcmp((char *)cur->phrase6, (char *)phrase6) == 0 && birthday != nullptr &&
+            cur->birthday_ptr != nullptr &&
             strlen((char *)cur->birthday_ptr) == strlen((char *)birthday) &&
             strcmp((char *)cur->birthday_ptr, (char *)birthday) == 0 &&
             cur->chara1_birth_month == chara1_birth_month &&
@@ -409,8 +409,8 @@ uint32_t add_flavor(int32_t cur_idx, uint8_t *phrase1, uint8_t *phrase2, uint8_t
             cur->chara2_birth_date == chara2_birth_date &&
             cur->chara3_birth_date == chara3_birth_date && cur->style1 == style1 &&
             cur->style3 == style3 &&
-            (fs == NULL // TODO: Would a NULL fontstyle actually be an error?
-             || (fs != NULL && fs->fontface == fontstyle_fontface && fs->color == fontstyle_color &&
+            (fs == nullptr // TODO: Would a NULL fontstyle actually be an error?
+             || (fs != nullptr && fs->fontface == fontstyle_fontface && fs->color == fontstyle_color &&
                  fs->height == fontstyle_height && fs->width == fontstyle_width))) {
             return i;
         }
@@ -470,13 +470,13 @@ uint32_t add_chara(int32_t cur_idx, uint8_t *chara_id_ptr, uint32_t flags, uint8
                    uint8_t chara_variation_num, uint8_t *sort_name_ptr, uint8_t *disp_name_ptr,
                    uint32_t file_type, uint32_t lapis_shape, uint8_t lapis_color, uint8_t *ha_ptr,
                    uint8_t *catchtext_ptr, int16_t win2_trigger, uint32_t game_version) {
-    if (chara_table == NULL || cur_idx + 1 >= (int32_t)chara_table_size) {
+    if (chara_table == nullptr || cur_idx + 1 >= (int32_t)chara_table_size) {
         // Realloc array to hold more charas
         uint32_t new_chara_table_size = cur_idx + 1 + chara_table_growth_size;
-        uint8_t *chara_table_new =
+        auto *chara_table_new =
             (uint8_t *)realloc(chara_table, (new_chara_table_size + 1) * sizeof(character_entry));
 
-        if (chara_table_new == NULL) {
+        if (chara_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    chara_table_size, chara_table_size + chara_table_growth_size);
             exit(1);
@@ -548,13 +548,13 @@ uint32_t add_music(int32_t cur_idx, uint8_t *fw_genre_ptr, uint8_t *fw_title_ptr
                    uint32_t folder, uint32_t cs_version, uint32_t categories, uint8_t *diffs,
                    uint16_t *charts, uint8_t *ha_ptr, uint32_t chara_x, uint32_t chara_y,
                    uint16_t *unk1, uint16_t *display_bpm, uint8_t *hold_flags, bool allow_resize) {
-    if (allow_resize && (music_table == NULL || cur_idx + 1 >= (int32_t)music_table_size)) {
+    if (allow_resize && (music_table == nullptr || cur_idx + 1 >= (int32_t)music_table_size)) {
         // Realloc array to hold more musics
         uint32_t new_music_table_size = cur_idx + 1 + music_table_growth_size;
-        uint8_t *music_table_new =
+        auto *music_table_new =
             (uint8_t *)realloc(music_table, (new_music_table_size + 1) * sizeof(music_entry));
 
-        if (music_table_new == NULL) {
+        if (music_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    music_table_size, music_table_size + music_table_growth_size);
             exit(1);
@@ -614,13 +614,13 @@ uint32_t add_music(int32_t cur_idx, uint8_t *fw_genre_ptr, uint8_t *fw_title_ptr
 uint32_t add_chart(int32_t cur_idx, uint8_t *folder, uint8_t *filename, int32_t audio_param1,
                    int32_t audio_param2, int32_t audio_param3, int32_t audio_param4,
                    uint32_t file_type, uint16_t used_keys, bool override_idx) {
-    if (chart_table == NULL || cur_idx + 1 >= (int32_t)chart_table_size) {
+    if (chart_table == nullptr || cur_idx + 1 >= (int32_t)chart_table_size) {
         // Realloc array to hold more charts
         uint32_t new_chart_table_size = cur_idx + 1 + chart_table_growth_size;
-        uint8_t *chart_table_new =
+        auto *chart_table_new =
             (uint8_t *)realloc(chart_table, (new_chart_table_size + 1) * sizeof(chart_entry));
 
-        if (chart_table_new == NULL) {
+        if (chart_table_new == nullptr) {
             printf("Couldn't relloc array from %d bytes to %d bytes, exiting...\n",
                    chart_table_size, chart_table_size + chart_table_growth_size);
             exit(1);
@@ -640,10 +640,10 @@ uint32_t add_chart(int32_t cur_idx, uint8_t *folder, uint8_t *filename, int32_t 
     for (int32_t i = 0; !override_idx && i <= max_chart_id; i++) {
         chart_entry *cur = (chart_entry *)chart_table + i;
 
-        if (folder != NULL && cur->folder_ptr != NULL &&
+        if (folder != nullptr && cur->folder_ptr != nullptr &&
             strlen((char *)cur->folder_ptr) == strlen((char *)folder) &&
-            strcmp((char *)cur->folder_ptr, (char *)folder) == 0 && filename != NULL &&
-            cur->filename_ptr != NULL &&
+            strcmp((char *)cur->folder_ptr, (char *)folder) == 0 && filename != nullptr &&
+            cur->filename_ptr != nullptr &&
             strlen((char *)cur->filename_ptr) == strlen((char *)filename) &&
             strcmp((char *)cur->filename_ptr, (char *)filename) == 0 &&
             cur->audio_param1 == audio_param1 && cur->audio_param2 == audio_param2 &&
@@ -680,7 +680,7 @@ void parse_charadb(const char *input_filename, const char *target) {
 
     if (target && strlen(target) > 0) {
         char beforeTarget[64] = {};
-        property_node_refer(config_xml, property_search(config_xml, NULL, "/database"), "before@",
+        property_node_refer(config_xml, property_search(config_xml, nullptr, "/database"), "before@",
                             PROPERTY_TYPE_ATTR, beforeTarget, 64);
 
         if (strlen(beforeTarget) > 0 && strcmp(target, beforeTarget) >= 0) {
@@ -689,7 +689,7 @@ void parse_charadb(const char *input_filename, const char *target) {
         }
 
         char afterTarget[64] = {};
-        property_node_refer(config_xml, property_search(config_xml, NULL, "/database"), "after@",
+        property_node_refer(config_xml, property_search(config_xml, nullptr, "/database"), "after@",
                             PROPERTY_TYPE_ATTR, afterTarget, 64);
         if (strlen(afterTarget) > 0 && strcmp(target, afterTarget) < 0) {
             printf("Currently loading %s, found database that is only valid after %s, skipping %s...\n", target, afterTarget, input_filename);
@@ -697,10 +697,10 @@ void parse_charadb(const char *input_filename, const char *target) {
         }
     }
 
-    property_node *prop = NULL;
-    if ((prop = property_search(config_xml, NULL, "/database/chara"))) {
+    property_node *prop = nullptr;
+    if ((prop = property_search(config_xml, nullptr, "/database/chara"))) {
         // Iterate over all charas in /database
-        for (; prop != NULL; prop = property_node_traversal(prop, TRAVERSE_NEXT_SEARCH_RESULT)) {
+        for (; prop != nullptr; prop = property_node_traversal(prop, TRAVERSE_NEXT_SEARCH_RESULT)) {
             char idxStr[256] = {};
             property_node_refer(config_xml, prop, "id@", PROPERTY_TYPE_ATTR, idxStr,
                                 sizeof(idxStr));
@@ -711,7 +711,7 @@ void parse_charadb(const char *input_filename, const char *target) {
             // If it doesn't exist, create a new entry in memory
             // Update the data in-place and make all parameters optional
             character_entry *c = get_chara(idx);
-            bool is_fresh = c == NULL;
+            bool is_fresh = c == nullptr;
 
             if (is_fresh) {
                 // Default character entry
@@ -720,8 +720,8 @@ void parse_charadb(const char *input_filename, const char *target) {
                 add_chara(idx, add_string((uint8_t *)"bamb_1a"), 0x31, add_string((uint8_t *)"22"),
                           add_string((uint8_t *)"gg_bamb_1a"), add_string((uint8_t *)"cs_bamb_1a"),
                           add_string((uint8_t *)"cs_a"), add_string((uint8_t *)"cs_b"), 240, 220, 0,
-                          0, 0, NULL, NULL, 53, get_lapis_shape_id((uint8_t *)"dia"),
-                          get_lapis_color_id((uint8_t *)"yellow"), NULL, NULL, -1, 0);
+                          0, 0, nullptr, nullptr, 53, get_lapis_shape_id((uint8_t *)"dia"),
+                          get_lapis_color_id((uint8_t *)"yellow"), nullptr, nullptr, -1, 0);
 
                 c = get_chara(idx);
             }
@@ -751,7 +751,7 @@ void parse_charadb(const char *input_filename, const char *target) {
             READ_S16_OPT(config_xml, prop, "win2_trigger", c->win2_trigger)
             READ_U32_OPT(config_xml, prop, "game_version", c->game_version)
 
-            property_node *prop_flavor = NULL;
+            property_node *prop_flavor = nullptr;
             int32_t flavor_idx = -1;
             if ((prop_flavor = property_search(config_xml, prop, "/flavor"))) {
                 // Save to flavor table
@@ -771,7 +771,7 @@ void parse_charadb(const char *input_filename, const char *target) {
                 READ_U16(config_xml, prop_flavor, "style1", style1)
                 READ_U16(config_xml, prop_flavor, "style3", style3)
 
-                property_node *prop_flavor_style = NULL;
+                property_node *prop_flavor_style = nullptr;
                 bool style2_flag = false;
                 uint32_t fontface = 0, color = 0, height = 0, width = 0;
                 if ((prop_flavor_style = property_search(config_xml, prop_flavor, "/style2"))) {
@@ -828,7 +828,7 @@ void parse_musicdb(const char *input_filename, const char *target) {
 
     if (target && strlen(target) > 0) {
         char beforeTarget[64] = {};
-        property_node_refer(config_xml, property_search(config_xml, NULL, "/database"), "before@",
+        property_node_refer(config_xml, property_search(config_xml, nullptr, "/database"), "before@",
                             PROPERTY_TYPE_ATTR, beforeTarget, 64);
 
         if (strlen(beforeTarget) > 0 && strcmp(target, beforeTarget) >= 0) {
@@ -837,7 +837,7 @@ void parse_musicdb(const char *input_filename, const char *target) {
         }
 
         char afterTarget[64] = {};
-        property_node_refer(config_xml, property_search(config_xml, NULL, "/database"), "after@",
+        property_node_refer(config_xml, property_search(config_xml, nullptr, "/database"), "after@",
                             PROPERTY_TYPE_ATTR, afterTarget, 64);
         if (strlen(afterTarget) > 0 && strcmp(target, afterTarget) < 0) {
             printf("Currently loading %s, found database that is only valid after %s, skipping %s...\n", target, afterTarget, input_filename);
@@ -845,10 +845,10 @@ void parse_musicdb(const char *input_filename, const char *target) {
         }
     }
 
-    property_node *prop = NULL;
-    if ((prop = property_search(config_xml, NULL, "/database/music"))) {
+    property_node *prop = nullptr;
+    if ((prop = property_search(config_xml, nullptr, "/database/music"))) {
         // Iterate over all musics in /database
-        for (; prop != NULL; prop = property_node_traversal(prop, TRAVERSE_NEXT_SEARCH_RESULT)) {
+        for (; prop != nullptr; prop = property_node_traversal(prop, TRAVERSE_NEXT_SEARCH_RESULT)) {
             char idxStr[256] = {};
             property_node_refer(config_xml, prop, "id@", PROPERTY_TYPE_ATTR, idxStr,
                                 sizeof(idxStr));
@@ -859,7 +859,7 @@ void parse_musicdb(const char *input_filename, const char *target) {
             // If it doesn't exist, create a new entry in memory
             // Update the data in-place and make all parameters optional
             music_entry *m = get_music(idx);
-            bool is_fresh = m == NULL;
+            bool is_fresh = m == nullptr;
 
             if (is_fresh) {
                 // Default music entry
@@ -873,7 +873,7 @@ void parse_musicdb(const char *input_filename, const char *target) {
                 // define everything like this?
                 add_music(idx, filler_str, filler_str, filler_str, filler_str, filler_str,
                           filler_str, 0, 0, 0x80000000, 25, 0, 0, (uint8_t *)&diffs[0],
-                          (uint16_t *)&charts[0], NULL, 0, 0, (uint16_t *)&unk1[0],
+                          (uint16_t *)&charts[0], nullptr, 0, 0, (uint16_t *)&unk1[0],
                           (uint16_t *)&display_bpm[0], (uint8_t *)&hold_flags[0], true);
 
                 m = get_music(idx);
@@ -903,20 +903,20 @@ void parse_musicdb(const char *input_filename, const char *target) {
             READ_U16_ARR_OPT(config_xml, prop, "unk1", m->unk1, 32)
             READ_U16_ARR_OPT(config_xml, prop, "display_bpm", m->display_bpm, 16)
 
-            property_node *prop_chart = NULL;
+            property_node *prop_chart = nullptr;
             int32_t default_chart_idx = -1;
             const uint32_t CHART_MASKS[] = {0x00080000, 0, 0x01000000,
                                             0x02000000, 0, 0x04000000};
 
             // Copy old chart flags from the previous mask
-            for (size_t i = 0; i < 6; i++) {
-                if ((orig_mask & CHART_MASKS[i]) != 0) {
-                    m->mask |= CHART_MASKS[i];
+            for (unsigned int i : CHART_MASKS) {
+                if ((orig_mask & i) != 0) {
+                    m->mask |= i;
                 }
             }
 
             if ((prop_chart = property_search(config_xml, prop, "charts/chart"))) {
-                for (; prop_chart != NULL; prop_chart = property_node_traversal(
+                for (; prop_chart != nullptr; prop_chart = property_node_traversal(
                                                prop_chart, TRAVERSE_NEXT_SEARCH_RESULT)) {
                     char chartIdxStr[256] = {};
                     property_node_refer(config_xml, prop_chart, "idx@", PROPERTY_TYPE_ATTR,
@@ -924,7 +924,7 @@ void parse_musicdb(const char *input_filename, const char *target) {
                     uint32_t chart_idx = chart_label_to_idx((uint8_t *)chartIdxStr);
 
                     chart_entry *c2 = get_chart(m->charts[chart_idx]);
-                    if (is_fresh || c2 == NULL) {
+                    if (is_fresh || c2 == nullptr) {
                         m->charts[chart_idx] = add_chart(max_chart_id + 1, filler_str, filler_str,
                                                          0, 0, 0, 0, 0, 0, true);
                     } else {
@@ -1000,20 +1000,20 @@ void load_databases(const char *target_datecode) {
     auto result = s.getResult();
     
     // Character databases must be loaded before music databases because the music databases could reference modified/new characters
-    for(uint16_t i=0;i<result.size();i++)
+    for(const auto & i : result)
     {
-        if ( strstr(result[i].c_str(), "charadb") == NULL )
+        if ( strstr(i.c_str(), "charadb") == nullptr )
             continue;
-        printf("(charadb) Loading %s...\n", result[i].c_str());
-        parse_charadb(result[i].c_str(), target_datecode);
+        printf("(charadb) Loading %s...\n", i.c_str());
+        parse_charadb(i.c_str(), target_datecode);
     }
 
-    for(uint16_t i=0;i<result.size();i++)
+    for(const auto & i : result)
     {
-        if ( strstr(result[i].c_str(), "musicdb") == NULL )
+        if ( strstr(i.c_str(), "musicdb") == nullptr )
             continue;
-        printf("(musicdb) Loading %s...\n", result[i].c_str());
-        parse_musicdb(result[i].c_str(), target_datecode);
+        printf("(musicdb) Loading %s...\n", i.c_str());
+        parse_musicdb(i.c_str(), target_datecode);
     }
 }
 
@@ -1081,9 +1081,9 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
 
         add_flavor(
             idx, cur->phrase1, cur->phrase2, cur->phrase3, cur->phrase4, cur->phrase5, cur->phrase6,
-            cur->birthday_ptr != NULL
+            cur->birthday_ptr != nullptr
                 ? add_string(cur->birthday_ptr)
-                : NULL,
+                : nullptr,
             cur->chara1_birth_month, cur->chara2_birth_month, cur->chara3_birth_month,
             cur->chara1_birth_date, cur->chara2_birth_date, cur->chara3_birth_date, cur->style1,
             true, cur->style3, cur_style->fontface, cur_style->color, cur_style->height,
@@ -1096,40 +1096,40 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
         character_entry *cur = (character_entry *)orig_chara_data + idx;
         add_chara(
             idx,
-            cur->chara_id_ptr != NULL
+            cur->chara_id_ptr != nullptr
                 ? add_string(cur->chara_id_ptr)
-                : NULL,
+                : nullptr,
             cur->flags,
-            cur->folder_ptr != NULL
+            cur->folder_ptr != nullptr
                 ? add_string(cur->folder_ptr)
-                : NULL,
-            cur->gg_ptr != NULL
+                : nullptr,
+            cur->gg_ptr != nullptr
                 ? add_string(cur->gg_ptr)
-                : NULL,
-            cur->cs_ptr != NULL
+                : nullptr,
+            cur->cs_ptr != nullptr
                 ? add_string(cur->cs_ptr)
-                : NULL,
-            cur->icon1_ptr != NULL
+                : nullptr,
+            cur->icon1_ptr != nullptr
                 ? add_string(cur->icon1_ptr)
-                : NULL,
-            cur->icon2_ptr != NULL
+                : nullptr,
+            cur->icon2_ptr != nullptr
                 ? add_string(cur->icon2_ptr)
-                : NULL,
+                : nullptr,
             cur->chara_xw, cur->chara_yh, cur->display_flags, cur->flavor_idx,
             cur->chara_variation_num,
-            cur->sort_name_ptr != NULL
+            cur->sort_name_ptr != nullptr
                 ? add_string(cur->sort_name_ptr)
-                : NULL,
-            cur->disp_name_ptr != NULL
+                : nullptr,
+            cur->disp_name_ptr != nullptr
                 ? add_string(cur->disp_name_ptr)
-                : NULL,
+                : nullptr,
             cur->file_type, cur->lapis_shape, cur->lapis_color,
-            cur->ha_ptr != NULL
+            cur->ha_ptr != nullptr
                 ? add_string(cur->ha_ptr)
-                : NULL,
-            cur->catchtext_ptr != NULL
+                : nullptr,
+            cur->catchtext_ptr != nullptr
                 ? add_string(cur->catchtext_ptr)
-                : NULL,
+                : nullptr,
             cur->win2_trigger, cur->game_version);
     }
 
@@ -1142,12 +1142,12 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
         for (int i = 0; i < 7; i++) {
             chart_entry *cur_chart = (chart_entry *)orig_chart_data + cur->charts[i];
             charts[i] = add_chart(cur->charts[i],
-                                  cur_chart->folder_ptr != NULL
+                                  cur_chart->folder_ptr != nullptr
                                       ? add_string(cur_chart->folder_ptr)
-                                      : NULL,
-                                  cur_chart->filename_ptr != NULL
+                                      : nullptr,
+                                  cur_chart->filename_ptr != nullptr
                                       ? add_string(cur_chart->filename_ptr)
-                                      : NULL,
+                                      : nullptr,
                                   cur_chart->audio_param1, cur_chart->audio_param2,
                                   cur_chart->audio_param3, cur_chart->audio_param4,
                                   cur_chart->file_type, cur_chart->used_keys, true);
@@ -1155,29 +1155,29 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
 
         add_music(
             idx,
-            cur->fw_genre_ptr != NULL
+            cur->fw_genre_ptr != nullptr
                 ? add_string(cur->fw_genre_ptr)
-                : NULL,
-            cur->fw_title_ptr != NULL
+                : nullptr,
+            cur->fw_title_ptr != nullptr
                 ? add_string(cur->fw_title_ptr)
-                : NULL,
-            cur->fw_artist_ptr != NULL
+                : nullptr,
+            cur->fw_artist_ptr != nullptr
                 ? add_string(cur->fw_artist_ptr)
-                : NULL,
-            cur->genre_ptr != NULL
+                : nullptr,
+            cur->genre_ptr != nullptr
                 ? add_string(cur->genre_ptr)
-                : NULL,
-            cur->title_ptr != NULL
+                : nullptr,
+            cur->title_ptr != nullptr
                 ? add_string(cur->title_ptr)
-                : NULL,
-            cur->artist_ptr != NULL
+                : nullptr,
+            cur->artist_ptr != nullptr
                 ? add_string(cur->artist_ptr)
-                : NULL,
+                : nullptr,
             cur->chara1, cur->chara2, cur->mask, cur->folder, cur->cs_version, cur->categories,
             cur->diffs, charts,
-            cur->ha_ptr != NULL
+            cur->ha_ptr != nullptr
                 ? add_string(cur->ha_ptr)
-                : NULL,
+                : nullptr,
             cur->chara_x, cur->chara_y, cur->unk1, cur->display_bpm, cur->hold_flags, true);
     }
 
@@ -1185,7 +1185,7 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
 
     // Add some filler charts to fix some bugs (hack)
     for (int i = 0; i < 10; i++) {
-        add_chart(max_chart_id + i + 1, NULL, NULL, 0, 0, 0, 0, 0, 0, true);
+        add_chart(max_chart_id + i + 1, nullptr, nullptr, 0, 0, 0, 0, 0, 0, true);
     }
 
     // Add one extra song as padding
@@ -1199,7 +1199,7 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
 
             add_music(max_music_id + 1, filler_str, filler_str, filler_str, filler_str, filler_str,
                         filler_str, 0, 0, 0x80000000, 25, 0, 0, (uint8_t *)&diffs[0],
-                        (uint16_t *)&charts[0], NULL, 0, 0, (uint16_t *)&unk1[0],
+                        (uint16_t *)&charts[0], nullptr, 0, 0, (uint16_t *)&unk1[0],
                         (uint16_t *)&display_bpm[0], (uint8_t *)&hold_flags[0], true);
         }
 
@@ -1207,8 +1207,8 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
             add_chara(max_chara_id + 1, add_string((uint8_t *)"bamb_1a"), 0x31, add_string((uint8_t *)"22"),
                         add_string((uint8_t *)"gg_bamb_1a"), add_string((uint8_t *)"cs_bamb_1a"),
                         add_string((uint8_t *)"cs_a"), add_string((uint8_t *)"cs_b"), 240, 220, 0,
-                        0, 0, NULL, NULL, 53, get_lapis_shape_id((uint8_t *)"dia"),
-                        get_lapis_color_id((uint8_t *)"yellow"), NULL, NULL, -1, 0);
+                        0, 0, nullptr, nullptr, 53, get_lapis_shape_id((uint8_t *)"dia"),
+                        get_lapis_color_id((uint8_t *)"yellow"), nullptr, nullptr, -1, 0);
         }
     }
 
@@ -1256,22 +1256,22 @@ void musichax_core_init(bool force_unlocks, bool is_expansion_allowed, bool is_r
     *new_chart_size = max_chart_id;
 
     if (force_unlocks) {
-        music_entry *m = (music_entry *)*new_music_table;
+        auto *m = (music_entry *)*new_music_table;
         for (uint64_t i = 0; i < *new_music_size; i++) {
             uint32_t new_mask = m[i].mask & ~0x8000080;
 
-            if (m[i].title_ptr != NULL && new_mask != m[i].mask) {
+            if (m[i].title_ptr != nullptr && new_mask != m[i].mask) {
                 printf("Unlocking [%04lld] %s... %08x -> %08x\n", i, m[i].title_ptr, m[i].mask,
                        new_mask);
                 patch_memory((uint64_t)&m[i].mask, (char *)&new_mask, sizeof(uint32_t));
             }
         }
 
-        character_entry *c = (character_entry *)*new_chara_table;
+        auto *c = (character_entry *)*new_chara_table;
         for (uint64_t i = 0; i < *new_chara_size; i++) {
             uint32_t new_flags = c[i].flags & ~3;
 
-            if (new_flags != c[i].flags && c[i].disp_name_ptr != NULL && strlen((char*)c[i].disp_name_ptr) > 0) {
+            if (new_flags != c[i].flags && c[i].disp_name_ptr != nullptr && strlen((char*)c[i].disp_name_ptr) > 0) {
                 printf("Unlocking [%04lld] %s... %08x -> %08x\n", i, c[i].disp_name_ptr, c[i].flags, new_flags);
                 patch_memory((uint64_t)&c[i].flags, (char *)&new_flags, sizeof(uint32_t));
 

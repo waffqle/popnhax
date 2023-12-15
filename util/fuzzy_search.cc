@@ -1,7 +1,7 @@
 #include <memory.h>
-#include <stdint.h>
+#include <cstdint>
 
-#include "util/fuzzy_search.h"
+#include "../util/fuzzy_search.h"
 
 int find_block_core(char *haystack, size_t haystack_size, fuzzy_search_task *needle,
                     size_t orig_offset, int dir) {
